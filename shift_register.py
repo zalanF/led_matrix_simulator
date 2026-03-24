@@ -5,12 +5,14 @@ from digital_logic import HIGH, LOW
 #Defines a serial in, parallel out shift regisiters of specifed size
 class shift_register:
     def __init__(self, size):
-        self._size =  size
+        self._size = size
         
         #Input
         self.IN = LOW #serial input input
         self._RCLK =  LOW #storage register clock, i.e, latch
         self._SRCLK = LOW #shift register clock
+        self._OE_ = LOW #Active low; Shift register ON by default
+        self._SRCLR_ = LOW #Active low; clear by default
         
         #Internal        
         #For rising edge detection, store previous pin states
@@ -38,23 +40,26 @@ class shift_register:
         print()
     
     def update(self):
-        #Latch
-        if self._detect_rising_edge(self.RCLK, self._prev_RCLK):
-            self._registers[self._curr_register] = self.IN
-            self._prev_RCLK = self._RCLK
+        #Output enable
+        #exit the function w/out doing anythinh
+        if self.OE_ == HIGH:
+            return
         
-        #Shift register clock
+        #Shift storage register
         if self._detect_rising_edge(self.SRCLK, self._prev_SRCLK):
-            self.OUT[self._curr_register] = self._registers[self._curr_register]
-            self._increment_register()
-            self._prev_SRCLK = self._SRCLK
-    
-    #wrap the length of registers
-    def _increment_register(self):
-        self._curr_register += 1
-        if self._curr_register == self.size:
-            self._curr_register = 0
-    
+            #copy first four registers to forward one position
+            self._registers[1:] = self._registers[:self.size-1]
+            #replace first register with new value
+            self._registers[0] = self.IN
+
+        #Latch output
+        if self._detect_rising_edge(self.RCLK, self._prev_RCLK):
+            self.OUT = self._registers.copy()
+
+        #Clear storage register
+        if self.SRCLR_ == LOW:
+            self._registers.fill(0)
+            
     
     def _detect_rising_edge(self, curr, prev):
         return curr == HIGH and prev == LOW
@@ -62,11 +67,12 @@ class shift_register:
     @property
     def size(self):
         return self._size
-    
+
+    #Latch
     @property
     def RCLK(self):
         return self._RCLK
-    
+
     @RCLK.setter
     def RCLK(self, rclk):
         self._prev_RCLK = self._RCLK
@@ -76,13 +82,30 @@ class shift_register:
     @property
     def SRCLK(self):
         return self._SRCLK
-     
+
+    #Shift
     @SRCLK.setter
     def SRCLK(self, srclk):
         self._prev_SRCLK = self._SRCLK
         self._SRCLK = srclk
         self.update()
-    
-    def pulse(self, pin):
-        pin = HIGH
-        pin = LOW
+
+    #Output Enable
+    @property
+    def OE_(self):
+        return self._OE_
+     
+    @OE_.setter
+    def OE_(self, oe):
+        self._OE_ = oe
+        self.update()
+
+    #Clear
+    @property
+    def SRCLR_(self):
+        return self._SRCLR_
+     
+    @SRCLR_.setter
+    def SRCLR_(self, srclr):
+        self._SRCLR_ = srclr
+        self.update()
