@@ -8,21 +8,21 @@ class shift_register:
         self._size = size
         
         #Input
-        self.IN = LOW #serial input input
-        self._RCLK =  LOW #storage register clock, i.e, latch
-        self._SRCLK = LOW #shift register clock
-        self._OE_ = LOW #Active low; Shift register ON by default
-        self._SRCLR_ = LOW #Active low; clear by default
+        self.IN      = LOW  # serial data input 
+        self._RCLK   = LOW  # storage register clock, i.e, latch
+        self._SRCLK  = LOW  # shift register clock
+        self._OE_    = LOW  # Active low; Shift register ON by default
+        self._SRCLR_ = LOW  # Active low; clears by default
         
         #Internal        
-        #For rising edge detection, store previous pin states
+        # For rising edge detection, store previous pin states
+        # this is simplistic rising edge detection that doesn't consider timing 
         self._prev_RCLK = LOW
         self._prev_SRCLK = LOW
-        self._curr_register = 0
         self._registers = np.zeros(self.size)
         
         #Output
-        self.OUT = np.zeros(self.size) #parallel out
+        self.OUT = np.zeros(self.size) #parallel data output
     
     def display_registers(self):
         print(f"Registers: {self._registers}")
@@ -31,7 +31,7 @@ class shift_register:
         print(f"   Output: {self.OUT}")
         
     def display_pin_state(self):
-        print(f"IN: {self.IN}, RCLK: {self._RCLK}, SRCLK: {self._SRCLK}, Curr Reg: {self._curr_register}")
+        print(f"IN: {self.IN}, RCLK: {self.RCLK}, SRCLK: {self.SRCLK}, OE: {self.OE_}, SRCLR: {self.SRCLR_}")
     
     def display(self):
         self.display_pin_state()
@@ -41,7 +41,7 @@ class shift_register:
     
     def update(self):
         #Output enable
-        #exit the function w/out doing anythinh
+        #exit the function without doing anything
         if self.OE_ == HIGH:
             return
         
