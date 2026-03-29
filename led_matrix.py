@@ -15,7 +15,7 @@ class led_matrix:
         self.update()
         print(self._matrix)
         print()
-         
+    
     def update(self):
         for r in range(self.rows):
             for c in range(self.cols):

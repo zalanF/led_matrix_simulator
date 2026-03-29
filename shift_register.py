@@ -1,10 +1,9 @@
 import numpy as np
 from digital_logic import HIGH, LOW
 
-
 #Defines a serial in, parallel out shift regisiters of specifed size
 class shift_register:
-    def __init__(self, size):
+    def __init__(self, size=2):
         self._size = size
         
         #Input
@@ -37,7 +36,6 @@ class shift_register:
         self.display_pin_state()
         self.display_registers()
         self. display_output()
-        print()
     
     def update(self):
         #Output enable
